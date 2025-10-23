@@ -4,58 +4,80 @@ const moment = require('moment-timezone');
 module.exports = {
 	config: {
 		name: "info",
- aliases: ["owner", "botinfo" ],
-		version: "1.0",
-		author: "Chitron Bhattacharjee",
+		aliases: ["owner", "botinfo"],
+		version: "1.1",
+		author: "Bot Owner",
 		countDown: 20,
 		role: 0,
-		shortDescription: { vi: "", en: "" },
-		longDescription: { vi: "", en: "" },
+		shortDescription: { en: "" },
+		longDescription: { en: "" },
 		category: "owner",
 		guide: { en: "" },
 		envConfig: {}
 	},
+
 	onStart: async function ({ message }) {
-		const authorName = "Sexy Rocky";
-		const ownAge = "『20』";
-		const messenger = " //m.me/Bangladesh.Top.Video.Editor.Rocky.Vai.320";
-		const authorFB = " //www.facebook.com/Bangladesh.Top.Video.Editor.Rocky.Vai.320";
-		const authorNumber = "+8801621251318";
-		const Status = "⩸____⩸";
-		const urls = [
-"https://drive.google.com/uc?export=view&id=1mzJeualLnMS-wABThyCQFfJsX-2hMADG",
-"https://drive.google.com/uc?export=view&id=14M_Qx2OfCQhybST0tAzQ4QEqT7COD6Z1"
-];
-		const link = urls[Math.floor(Math.random() * urls.length)];
-		const now = moment().tz('Asia/Jakarta');
-		const date = now.format('MMMM Do YYYY');
-		const time = now.format('h:mm:ss A');
+		const Bot Owner = "🌸 𝐓𝐚𝐧𝐯𝐢𝐫 𝐀𝐧𝐤𝐡𝐨𝐧 🌸";
+		const Home = "🏠 বাসা: কুমিল্লা, বাংলাদেশ";
+		const Current = "🕋 বর্তমানে: সৌদি আরব";
+		const Age = "🎂 বয়স: ২৫ বছর";
+		const Relation = "💔 রিলেশন: সিঙ্গেল — (কোনো মেয়ে থাকলে ইনবক্সে আসতে পারেন 😉)";
+		const Facebook = "📘 ফেসবুক: https://www.facebook.com/Tanubruh41";
+		const Instagram = "📸 ইন্সটাগ্রাম: https://instagram.com/Tanubruh";
+		const Telegram = "📬 টেলিগ্রাম: https://t.me/Tanubruh";
+		const Messenger = "💌 মেসেঞ্জার: https://m.me/Tanubruh41";
+
+		const images = [
+			"https://i.postimg.cc/mgcKfwsn/Photo-Studio-1669021964995.jpg",
+			"https://i.postimg.cc/q73hW9g4/Pics-Art-10-09-10-50-18.jpg",
+			"https://i.postimg.cc/T1RKL19F/Pics-Art-10-09-10-50-44.jpg",
+			"https://i.postimg.cc/Pf4pGbf5/Pics-Art-10-09-10-51-06.jpg",
+			"https://i.postimg.cc/QC3jVzXr/IMG-20250923-190030.jpg"
+		];
+		const randomImage = images[Math.floor(Math.random() * images.length)];
+
+		const now = moment().tz('Asia/Dhaka');
+		const date = now.format('DD MMMM YYYY');
+		const time = now.format('hh:mm:ss A');
+
 		const uptime = process.uptime();
 		const seconds = Math.floor(uptime % 60);
 		const minutes = Math.floor((uptime / 60) % 60);
 		const hours = Math.floor((uptime / (60 * 60)) % 24);
 		const days = Math.floor(uptime / (60 * 60 * 24));
-		const uptimeString = `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
+		const uptimeString = `${days} দিন ${hours} ঘণ্টা ${minutes} মিনিট ${seconds} সেকেন্ড`;
 
 		message.reply({
-			body: `✨《 𝐁𝐨𝐭 𝐀𝐧𝐝 𝐎𝐰𝐧𝐞𝐫 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧 》🎀
-\🤖彡𝐵𝑜𝑡 𝑁𝑎𝑚𝑒 : ${global.GoatBot.config.nickNameBot}
-\👾彡𝐵𝑜𝑡 𝑆𝑦𝑠𝑡𝑒𝑚 𝑃𝑟𝑒𝑓𝑖𝑥 : ${global.GoatBot.config.prefix}
-\💙彡𝑂𝑤𝑛𝑒𝑟 𝑁𝑎𝑚𝑒 : ${authorName}
-\📝彡𝐴𝑔𝑒 : ${ownAge}
-\💕彡𝑅𝑒𝑙𝑎𝑡𝑖𝑜𝑛𝑆ℎ𝑖𝑝: ${Status}
-\🌐彡𝑊𝑝 : ${authorNumber}
-\🌍彡𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝐿𝑖𝑛𝑘 : ${authorFB}
-\🗓彡𝐷𝑎𝑡𝑒 : ${date}
-\⏰彡𝑁𝑜𝑤 𝑇𝑖𝑚𝑒 : ${time}
-\🔰彡𝐴𝑛𝑦 𝐻𝑒𝑙𝑝 𝐶𝑜𝑛𝑡𝑎𝑐𝑡 : ${messenger}__⩸
-\📛彡𝐵𝑜𝑡 𝐼𝑠 𝑅𝑢𝑛𝑛𝑖𝑛𝑔 𝐹𝑜𝑟 : ${uptimeString}
- 𝑰𝒏𝒔𝒕𝒂: //www.instagram.com/rocky.bd.top.video.editor__
-\===============`,
-			attachment: await global.utils.getStreamFromURL(link)
+			body: `✨━━━━━━━━━━━━━━━━━━✨
+🌺 𝑩𝑶𝑻 𝑶𝑾𝑵𝑬𝑹 𝑰𝑵𝑭𝑶 🌺
+✨━━━━━━━━━━━━━━━━━━✨
+
+🤖 বট নাম: ${global.GoatBot.config.nickNameBot}
+⚙️ প্রিফিক্স: ${global.GoatBot.config.prefix}
+
+👑 নাম: ${ownerName}
+${home}
+${current}
+${age}
+${relation}
+
+🌐 যোগাযোগ মাধ্যম:
+${facebook}
+${instagram}
+${telegram}
+${messenger}
+
+📅 তারিখ: ${date}
+⏰ সময়: ${time}
+🕒 বট চালু আছে: ${uptimeString}
+
+🕌 আল্লাহ আমাদের সবাইকে হেদায়েত দান করুন 🤲
+✨━━━━━━━━━━━━━━━━━━✨`,
+			attachment: await global.utils.getStreamFromURL(randomImage)
 		});
 	},
-	onChat: async function ({ event, message, getLang }) {
+
+	onChat: async function ({ event, message }) {
 		if (event.body && event.body.toLowerCase() === "info") {
 			this.onStart({ message });
 		}
