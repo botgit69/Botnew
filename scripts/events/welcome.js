@@ -6,21 +6,11 @@ module.exports = {
 	config: {
 		name: "welcome",
 		version: "1.7",
-		author: "NTKhang",
+		author: "NTKhang & Edited by Tanvir",
 		category: "events"
 	},
 
 	langs: {
-		vi: {
-			session1: "sáng",
-			session2: "trưa",
-			session3: "chiều",
-			session4: "tối",
-			welcomeMessage: "Cảm ơn bạn đã mời tôi vào nhóm!\nPrefix bot: %1\nĐể xem danh sách lệnh hãy nhập: %1help",
-			multiple1: "bạn",
-			multiple2: "các bạn",
-			defaultWelcomeMessage: "Xin chào {userName}.\nChào mừng bạn đến với {boxName}.\nChúc bạn có buổi {session} vui vẻ!"
-		},
 		en: {
 			session1: "morning",
 			session2: "noon",
@@ -29,7 +19,18 @@ module.exports = {
 			welcomeMessage: "Thank you for inviting me to the group!\nBot prefix: %1\nTo view the list of commands, please enter: %1help",
 			multiple1: "you",
 			multiple2: "you guys",
-			defaultWelcomeMessage: `Hello {userName}.\nWelcome {multiple} to the chat group: {boxName}\nHave a nice {session} 😊`
+			defaultWelcomeMessage: `🕌 আসসালামু আলাইকুম প্রিয় ভাই/বোন❤️  
+আপনাকে আমাদের {boxName} গ্রুপে স্বাগতম 🌸  
+আপনি আমাদের গ্রুপের {memberCount} তম মেম্বার 💫  
+আমাদের মাঝে আপনাকে পেয়ে আমরা খুবই আনন্দিত 😊  
+
+🤝 সবার সাথে মিলেমিশে চলুন, আড্ডা দিন আর সবার সাথে পরিচয় হয়ে নিন!  
+
+প্রথমে আমি বলি — আমি **MD Tanvir Ahmmed Chowdhury ভাইয়ের বট 🤖**  
+যেকোনো সাহায্যে যোগাযোগ করুন 👇  
+🔗 [m.facebook.com/Tanubruh41](https://m.facebook.com/Tanubruh41)
+
+আল্লাহ হাফেজ 🌙✨`
 		}
 	},
 
@@ -41,25 +42,23 @@ module.exports = {
 				const { nickNameBot } = global.GoatBot.config;
 				const prefix = global.utils.getPrefix(threadID);
 				const dataAddedParticipants = event.logMessageData.addedParticipants;
+
 				// if new member is bot
 				if (dataAddedParticipants.some((item) => item.userFbId == api.getCurrentUserID())) {
 					if (nickNameBot)
 						api.changeNickname(nickNameBot, threadID, api.getCurrentUserID());
 					return message.send(getLang("welcomeMessage", prefix));
 				}
-				// if new member:
+
 				if (!global.temp.welcomeEvent[threadID])
 					global.temp.welcomeEvent[threadID] = {
 						joinTimeout: null,
 						dataAddedParticipants: []
 					};
 
-				// push new member to array
 				global.temp.welcomeEvent[threadID].dataAddedParticipants.push(...dataAddedParticipants);
-				// if timeout is set, clear it
 				clearTimeout(global.temp.welcomeEvent[threadID].joinTimeout);
 
-				// set new timeout
 				global.temp.welcomeEvent[threadID].joinTimeout = setTimeout(async function () {
 					const threadData = await threadsData.get(threadID);
 					if (threadData.settings.sendWelcomeMessage == false)
@@ -67,6 +66,8 @@ module.exports = {
 					const dataAddedParticipants = global.temp.welcomeEvent[threadID].dataAddedParticipants;
 					const dataBanned = threadData.data.banned_ban || [];
 					const threadName = threadData.threadName;
+					const threadInfo = await api.getThreadInfo(threadID);
+					const memberCount = threadInfo.participantIDs.length;
 					const userName = [],
 						mentions = [];
 					let multiple = false;
@@ -83,20 +84,15 @@ module.exports = {
 							id: user.userFbId
 						});
 					}
-					// {userName}:   name of new member
-					// {multiple}:
-					// {boxName}:    name of group
-					// {threadName}: name of group
-					// {session}:    session of day
 					if (userName.length == 0) return;
-					let { welcomeMessage = getLang("defaultWelcomeMessage") } =
-						threadData.data;
+					let { welcomeMessage = getLang("defaultWelcomeMessage") } = threadData.data;
 					const form = {
 						mentions: welcomeMessage.match(/\{userNameTag\}/g) ? mentions : null
 					};
 					welcomeMessage = welcomeMessage
 						.replace(/\{userName\}|\{userNameTag\}/g, userName.join(", "))
 						.replace(/\{boxName\}|\{threadName\}/g, threadName)
+						.replace(/\{memberCount\}/g, memberCount)
 						.replace(
 							/\{multiple\}/g,
 							multiple ? getLang("multiple2") : getLang("multiple1")
