@@ -16,7 +16,17 @@ module.exports = {
 			session4: "tối",
 			leaveType1: "tự rời",
 			leaveType2: "bị kick",
-			defaultLeaveMessage: "{userName} đã {type} khỏi nhóm"
+			defaultLeaveMessage: [
+				"{userName} হায়! চা খাওয়ার সময়ও মিস করছে, গ্রুপ ছেড়ে গেলো ☕😂",
+				"{userName} চলে গেলো! আমাদের গ্রুপ এখন ৫০% কম শক্তিশালী 💪🤣",
+				"{userName} গ্রুপ থেকে উড়ে গেলো! হয়তো কোন মজার জায়গায় দৌড়াচ্ছে 🏃‍♂️💨",
+				"{userName} ছেড়ে গেলো! আমাদের গ্রুপে এখন নীরবতা 😶😆",
+				"{userName} হায়! এমন লাগছে যেনো লাইট চলে গেছে, গ্রুপে অন্ধকার 😜💡",
+				"{userName} চলে গেলো! মনে হচ্ছে কেউ মজার জোকসই বলবে না এখন 😂",
+				"{userName} গ্রুপ ত্যাগ করলো! কেউ কি ওকে আটকাতে পারতো না? 😎",
+				"{userName} গিয়েছে! বাকি সবাই এখন চুপচাপ বসে আছে 🤭",
+				"{userName} বিদায় নিলো! গ্রুপে এখন মজার হাহাকার শুরু 😹"
+			]
 		},
 		en: {
 			session1: "morning",
@@ -34,32 +44,29 @@ module.exports = {
 			return async function () {
 				const { threadID } = event;
 				const threadData = await threadsData.get(threadID);
-				if (!threadData.settings.sendLeaveMessage)
-					return;
+				if (!threadData.settings.sendLeaveMessage) return;
 				const { leftParticipantFbId } = event.logMessageData;
-				if (leftParticipantFbId == api.getCurrentUserID())
-					return;
+				if (leftParticipantFbId == api.getCurrentUserID()) return;
 				const hours = getTime("HH");
 
 				const threadName = threadData.threadName;
 				const userName = await usersData.getName(leftParticipantFbId);
 
-				// {userName}   : name of the user who left the group
-				// {type}       : type of the message (leave)
-				// {boxName}    : name of the box
-				// {threadName} : name of the box
-				// {time}       : time
-				// {session}    : session
+				let leaveMessageTemplate = threadData.data.leaveMessage || getLang("defaultLeaveMessage");
 
-				let { leaveMessage = getLang("defaultLeaveMessage") } = threadData.data;
+				// যদি মেসেজ লিস্ট হয়, র‍্যান্ডম একটি বেছে নাও
+				if (Array.isArray(leaveMessageTemplate)) {
+					leaveMessageTemplate = leaveMessageTemplate[Math.floor(Math.random() * leaveMessageTemplate.length)];
+				}
+
 				const form = {
-					mentions: leaveMessage.match(/\{userNameTag\}/g) ? [{
+					mentions: leaveMessageTemplate.match(/\{userNameTag\}/g) ? [{
 						tag: userName,
 						id: leftParticipantFbId
 					}] : null
 				};
 
-				leaveMessage = leaveMessage
+				let leaveMessage = leaveMessageTemplate
 					.replace(/\{userName\}|\{userNameTag\}/g, userName)
 					.replace(/\{type\}/g, leftParticipantFbId == event.author ? getLang("leaveType1") : getLang("leaveType2"))
 					.replace(/\{threadName\}|\{boxName\}/g, threadName)
