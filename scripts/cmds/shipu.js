@@ -1,137 +1,104 @@
 const axios = require("axios");
-const mongoose = require("mongoose");
-
-// MongoDB schema (auto create if not exists)
-const ShipuMemory = mongoose.models.ShipuMemory || mongoose.model("ShipuMemory", new mongoose.Schema({
- userID: String,
- memory: String,
- personality: { type: String, default: "default" }
-}));
-
-const apiUrl = "https://shipu-ai.onrender.com/api.php?action=";
 
 module.exports = {
- config: {
- name: "shipu",
- aliases: ["lume", "lumyai", "lum", "ai", "শিপু"],
- version: "1.2",
- author: "Chitron Bhattacharjee",
- countDown: 1,
- role: 0,
- shortDescription: {
- en: "Talk with ShiPu AI (with memory and personality)"
- },
- longDescription: {
- en: "Chat with Lume-powered ShiPu AI. Continues chat with memory, supports personality modes."
- },
- category: "ai",
- guide: {
- en: "+shipu [message] or reply to ShiPu\n+shipu setpersonality [funny|formal|sarcastic]\nNo-prefix supported too"
- }
- },
+  config: {
+    name: "shipu",
+    aliases: ["ai", "lum", "lumyai", "শিপু"],
+    version: "3.0",
+    author: "Tanu Bruh Mod by ChatGPT",
+    countDown: 1,
+    role: 0,
+    shortDescription: {
+      en: "Talk with ShiPu AI in different personality modes (বাংলা সহ)"
+    },
+    longDescription: {
+      en: "Chat with ShiPu AI in normal, Islamic, funny, or romantic modes."
+    },
+    category: "ai",
+    guide: {
+      en: "{prefix}shipu [message]\n{prefix}shipu mode [islamic|funny|romantic|normal]\nExample: /shipu mode islamic"
+    }
+  },
 
- onStart: async function ({ api, event, args, message }) {
- const uid = event.senderID;
- const input = args.join(" ");
+  onStart: async function ({ api, event, args }) {
+    const uid = event.senderID;
+    const input = args.join(" ").trim();
+    if (!input) return api.sendMessage("🧠 কিছু লিখো ভাই, আমি উত্তর দিবো!", event.threadID);
 
- if (!input) return message.reply("📩 | Please provide a message or reply to a ShiPu message.");
+    // যদি mode সেট করতে চায়
+    if (args[0]?.toLowerCase() === "mode") {
+      const mode = args[1]?.toLowerCase();
+      if (!["islamic", "funny", "romantic", "normal"].includes(mode))
+        return api.sendMessage("⚙️ ব্যবহার: /shipu mode [islamic|funny|romantic|normal]", event.threadID);
+      global.ShipuMode = global.ShipuMode || {};
+      global.ShipuMode[uid] = mode;
+      return api.sendMessage(`✅ মোড পরিবর্তন হয়েছে ➤ *${mode.toUpperCase()}*`, event.threadID);
+    }
 
- // Personality setter
- if (args[0]?.toLowerCase() === "setpersonality") {
- const mode = args[1]?.toLowerCase();
- if (!mode) return message.reply("⚙️ | Usage: +shipu setpersonality [mode]");
- await ShipuMemory.findOneAndUpdate({ ID: uid }, { personality: mode }, { upsert: true });
- return message.reply(`✅ | Personality set to **${mode}**`);
- }
+    await handleShipu(api, event, input);
+  },
 
- handleConversation(api, event, input);
- },
+  onReply: async function ({ api, event }) {
+    if (!event.body) return;
+    await handleShipu(api, event, event.body);
+  },
 
- onReply: async function ({ api, event }) {
- const userInput = event.body?.toLowerCase();
- if (!userInput) return;
- handleConversation(api, event, userInput);
- },
-
- onChat: async function ({ api, event }) {
- const body = event.body?.toLowerCase();
- if (!body) return;
-
- const prefixes = ["shipu", "lume", "lumyai", "lum", "ai", "shpu"];
- const matched = prefixes.find(p => body.startsWith(p));
- if (!matched) return;
-
- const content = body.slice(matched.length).trim();
- if (!content) {
- const prompts = [
- "👋 হ্যাঁ বলো, শুনছি!",
- "🤖 তুমি কি জানতে চাও আমার সম্পর্কে?",
- "🧠 লিখো কিছু, আমি ভাবছি...",
- "💬 কিছু বলো, আমি উত্তর দিবো!"
- ];
- const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
- return api.sendMessage(randomPrompt, event.threadID, (err, info) => {
- if (!info?.messageID) return;
- global.GoatBot.onReply.set(info.messageID, {
- commandName: "shipu",
- type: "reply",
- author: event.senderID
- });
- }, event.messageID);
- }
-
- handleConversation(api, event, content);
- }
+  onChat: async function ({ api, event }) {
+    const body = event.body?.toLowerCase();
+    if (!body) return;
+    const prefixes = ["shipu", "ai", "lumyai", "lum", "শিপু"];
+    const match = prefixes.find(p => body.startsWith(p));
+    if (!match) return;
+    const query = body.slice(match.length).trim();
+    if (!query) return api.sendMessage("💬 বলো ভাই, শুনছি...", event.threadID);
+    await handleShipu(api, event, query);
+  }
 };
 
-// 🔁 Handle user conversation
-async function handleConversation(api, event, userInput) {
- const uid = event.senderID;
- let memory = "";
- let personality = "default";
+// ───────────────────────────────
+// মূল কথোপকথন হ্যান্ডলার
+async function handleShipu(api, event, userInput) {
+  try {
+    const uid = event.senderID;
+    const mode = global.ShipuMode?.[uid] || "normal";
 
- // 🔍 Try to load memory/personality
- try {
- const userData = await ShipuMemory.findOne({ userID: uid });
- if (userData) {
- memory = userData.memory || "";
- personality = userData.personality || "default";
- }
- } catch (err) {
- console.log("⚠️ MongoDB not connected or memory fetch failed.");
- }
+    // Mode অনুযায়ী নির্দেশনা
+    let prompt;
+    switch (mode) {
+      case "islamic":
+        prompt = `তুমি একজন ইসলামিক উপদেষ্টা হিসেবে উত্তর দেবে। কুরআন-হাদীস অনুযায়ী নম্র ভাষায় উত্তর দাও। প্রশ্ন: ${userInput}`;
+        break;
+      case "funny":
+        prompt = `তুমি একজন মজার চরিত্র, হালকা হাস্যরস মিশিয়ে উত্তর দাও। প্রশ্ন: ${userInput}`;
+        break;
+      case "romantic":
+        prompt = `তুমি একজন ভালোবাসাপূর্ণ রোমান্টিক চরিত্র, নরম ও মিষ্টি ভঙ্গিতে উত্তর দাও। প্রশ্ন: ${userInput}`;
+        break;
+      default:
+        prompt = userInput;
+    }
 
- try {
- const query = memory ? `${memory}\nUser: ${userInput}` : userInput;
- const fullQuery = `[${personality} mode]\n${query}`;
+    // API রিকোয়েস্ট
+    const res = await axios.get(`https://api.bk9.site/api/chat?message=${encodeURIComponent(prompt)}`);
+    const reply = res.data?.reply || "😅 আমি একটু বুঝতে পারিনি ভাই।";
 
- const res = await axios.get(apiUrl + encodeURIComponent(fullQuery));
- const { botReply, status, author } = res.data;
+    const styled = `╭───「 🤖 𝗦𝗵𝗶𝗣𝘂 𝗔𝗜 」───╮
+👤 Mode: ${mode.toUpperCase()}
+💬 Question: ${userInput}
 
- if (status !== "success") {
- return api.sendMessage("❌ | ShiPu couldn't reply. Try again later.", event.threadID, event.messageID);
- }
+🧠 Answer: ${reply}
+╰────────────────────╯`;
 
- // Save new memory
- try {
- const newMemory = `User: ${userInput}\nShiPu: ${botReply}`;
- await ShipuMemory.findOneAndUpdate({ userID: uid }, { memory: newMemory }, { upsert: true });
- } catch (e) {
- console.log("⚠️ Failed to save memory.");
- }
-
- const styled = `╭────────────╮\n ▄ 🧠 𝗦𝗵𝗶𝗣𝘂 𝗔𝗜 𝘀𝗮𝗶𝗱:\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n\n\n${botReply}\n\n──────────────\n▄ 📩 𝗬𝗼𝘂: ${userInput}\n▄▄▄▄▄▄▄▄▄▄▄▄▄\n╔══════════╗\n║ 👤𝗠𝗼𝗱𝗲: ${personality}\n║ 🖊️𝗔𝘂𝘁𝗵𝗼𝗿: Chitron\n║ Bhattacharjee\n╚══════════╝`;
-
- api.sendMessage(styled, event.threadID, (err, info) => {
- if (!info?.messageID) return;
- global.GoatBot.onReply.set(info.messageID, {
- commandName: "shipu",
- type: "reply",
- author: event.senderID
- });
- }, event.messageID);
- } catch (err) {
- console.error(err);
- api.sendMessage("⚠️ | Failed to contact ShiPu AI.", event.threadID, event.messageID);
- }
+    api.sendMessage(styled, event.threadID, (err, info) => {
+      if (!info?.messageID) return;
+      global.GoatBot.onReply.set(info.messageID, {
+        commandName: "shipu",
+        author: event.senderID,
+        type: "reply"
+      });
+    }, event.messageID);
+  } catch (err) {
+    console.error(err);
+    api.sendMessage("⚠️ সার্ভার ব্যস্ত! একটু পরে চেষ্টা করো ভাই।", event.threadID, event.messageID);
+  }
 }
