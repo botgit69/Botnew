@@ -27,8 +27,10 @@ module.exports = {
 🤝 সবার সাথে মিলেমিশে চলুন, আড্ডা দিন আর সবার সাথে পরিচয় হয়ে নিন!  
 
 প্রথমে আমি বলি — আমি **MD Tanvir Ahmmed Chowdhury ভাইয়ের বট 🤖**  
-যেকোনো সাহায্যে যোগাযোগ করুন 👇  
-🔗 [m.facebook.com/Tanubruh41](https://m.facebook.com/Tanubruh41)
+যেকোনো সাহায্যে যোগাযোগ করুন এবং আমাকে ব্যবহারের জন্য /help লিখে ব্যবহারের কমান্ড দেখুন👇 
+
+
+🔗 [https://web.facebook.com/Tanubruh41]
 
 আল্লাহ হাফেজ 🌙✨`
 		}
