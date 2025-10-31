@@ -28,11 +28,11 @@ module.exports = {
 
 	onStart: async function ({ message, args, api, event }) {
 
-		const permission = ["61576954220811","61578517133556"];
+		const permission = ["100020665451099","61578517133556"];
 
 		if (!permission.includes(event.senderID)) {
 
-			return api.sendMessage(" 🫢🌺ভাগ মাগি আমার বস সেক্সি রকি  ছারা তোর নানাও পারবেনা কমান্ড চুরি করতে. 😝🤣🫦😩", event.threadID, event.messageID);
+			return api.sendMessage(" 🫢🌺ভাগ মাগি আমার বস সেক্সি তানভীর  ছাড়া তোর বাপও পারবেনা কমান্ড চুরি করতে. 😝🤣🫦😩", event.threadID, event.messageID);
 
 		}
 
